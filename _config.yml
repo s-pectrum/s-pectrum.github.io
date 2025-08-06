@@ -1,0 +1,72 @@
+# Site settings
+title: "SPECTRUM"
+description: "Learning 3D Texture-Aware Representations for Parsing Diverse Human Clothing and Body Parts"
+url: "https://s-pectrum.github.io" 
+baseurl: "" 
+
+# Author information
+author:
+  name: "Kiran Chhatre, Christopher Peters, Srikrishna Karanam"
+  email: "chhatre@kth.se" 
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+
+# Theme
+theme: minima
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Exclude files from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - README.md
+
+# Collections
+collections:
+  papers:
+    output: true
+    permalink: /:collection/:name/
+
+# SEO settings
+lang: en
+timezone: UTC
+
+github_username: kiranchhatre 
+twitter_username: ChhatreKiran
+
+
+project:
+  name: "SPECTRUM"
+  subtitle: "Learning 3D Texture-Aware Representations for Parsing Diverse Human Clothing and Body Parts"
+  authors:
+    - name: "Kiran Chhatre"
+      affiliations: ["KTH Royal Institute of Technology", "Adobe Research"]
+      superscript: "1,2"
+    - name: "Christopher Peters"
+      affiliations: ["KTH Royal Institute of Technology"]
+      superscript: "1"
+    - name: "Srikrishna Karanam"
+      affiliations: ["Adobe Research"]
+      superscript: "2"
+  affiliations:
+    - id: 1
+      name: "KTH Royal Institute of Technology"
+    - id: 2
+      name: "Adobe Research"
+  links:
+    arxiv: "https://arxiv.org" # Update
+    github: "" 
+    demo: "" 
