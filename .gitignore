@@ -1,0 +1,65 @@
+# Scripts and build files
+/scripts/
+scripts/
+
+# Temporary assets and source files
+/assets/tmp/
+assets/tmp/
+
+# Python virtual environment
+/venv/
+venv/
+
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+
+# GIF files in single and multi directories (keep only PNG)
+/assets/single/*.gif
+/assets/multi/*.gif
+assets/single/*.gif
+assets/multi/*.gif
+
+# Keep favicon files
+!favicon.ico
+!favicon.svg
+
+/assets/multi/multi_9_*
+assets/multi/multi_9_*
+/assets/multi/multi_11_*
+assets/multi/multi_11_*
+/assets/multi/multi_15_*
+assets/multi/multi_15_*
+
+# Exclude single_17 images
+/assets/single/single_17_*
+assets/single/single_17_*
+
+# Backup and temporary files
+*.bak
+*.tmp
+*.temp
+*~
+.DS_Store
+Thumbs.db
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jekyll build files (if using Jekyll)
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPECTRUM - Diverse Human Clothing Parsing</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.svg">
+    <link rel="mask-icon" href="favicon.svg" color="#1d1d1f">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'San Francisco', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #1d1d1f;
+            background-color: #ffffff;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: #ffffff;
+            color: #1d1d1f;
+            padding: 120px 0 100px 0;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .title {
+            font-size: 6.5rem;
+            font-weight: 700;
+            margin-bottom: 32px;
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+            color: #000000;
+        }
+        
+        /* Individual letter glows for SPECTRUM with static colors */
+        .title span {
+            display: inline-block;
+            position: relative;
+        }
+        
+        .title .letter-s { 
+            text-shadow: 0 0 30px rgba(255, 0, 0, 0.6);
+        }
+        .title .letter-p { 
+            text-shadow: 0 0 30px rgba(255, 128, 0, 0.6);
+        }
+        .title .letter-e { 
+            text-shadow: 0 0 30px rgba(255, 255, 0, 0.6);
+        }
+        .title .letter-c { 
+            text-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
+        }
+        .title .letter-t { 
+            text-shadow: 0 0 30px rgba(0, 128, 255, 0.6);
+        }
+        .title .letter-r { 
+            text-shadow: 0 0 30px rgba(128, 0, 255, 0.6);
+        }
+        .title .letter-u { 
+            text-shadow: 0 0 30px rgba(255, 0, 255, 0.6);
+        }
+        .title .letter-m { 
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+        }
+        
+        .authors {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #424245;
+            letter-spacing: 0.005em;
+        }
+        
+        .author-link {
+            color: #007aff;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .author-link:hover {
+            color: #0056cc;
+            border-bottom: 1px solid #0056cc;
+        }
+        
+        .affiliations {
+            font-size: 1.25rem;
+            color: #86868b;
+            margin-bottom: 48px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+        
+        .affiliation-link {
+            color: #007aff;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .affiliation-link:hover {
+            color: #0056cc;
+            border-bottom: 1px solid #0056cc;
+        }
+        
+        .superscript {
+            vertical-align: super;
+            font-size: 0.8em;
+        }
+        
+        .arxiv-btn {
+            display: inline-block;
+            background-color: #1d1d1f;
+            color: white;
+            padding: 14px 28px;
+            text-decoration: none;
+            border-radius: 24px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            margin-top: 32px;
+            border: 1px solid #1d1d1f;
+        }
+        
+        .arxiv-btn:hover {
+            background-color: #ffffff;
+            color: #1d1d1f;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .arxiv-logo {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        .section {
+            background: white;
+            margin: 80px 0;
+            padding: 0;
+            border-radius: 0;
+            box-shadow: none;
+            border-top: none;
+        }
+        
+        .section:first-child {
+            margin-top: 60px;
+        }
+        
+        .section h2 {
+            color: #1d1d1f;
+            margin-bottom: 56px;
+            font-size: 2.75rem;
+            font-weight: 600;
+            border-bottom: none;
+            padding-bottom: 0;
+            text-align: center;
+            letter-spacing: -0.04em;
+        }
+        
+        .teaser-container {
+            text-align: center;
+            margin: 40px auto;
+            width: 100%;
+            max-width: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: auto;
+        }
+        
+        .teaser-gif {
+            max-width: 100%;
+            width: auto;
+            max-height: 400px;
+            height: auto;
+            border-radius: 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 0 20px rgba(0, 122, 255, 0.08);
+        }
+        
+        .method-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .method-gif {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .results-subsection {
+            margin: 60px 0;
+        }
+        
+        .results-subsection h3 {
+            font-size: 2rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 16px;
+            color: #1d1d1f;
+            letter-spacing: -0.02em;
+        }
+        
+        .hover-instruction {
+            text-align: center;
+            font-size: 1rem;
+            color: #86868b;
+            font-weight: 400;
+            margin-bottom: 32px;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .mobile-instruction {
+            display: none;
+        }
+        
+        .desktop-instruction {
+            display: flex;
+        }
+        
+        .results-controls {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .single-results-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin: 32px 0;
+        }
+        
+        .multi-results-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+            margin: 32px 0;
+        }
+        
+        .result-item {
+            position: relative;
+            border-radius: 0;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-item:hover {
+            transform: scale(1.02);
+        }
+        
+        .result-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: opacity 0.3s ease;
+        }
+        
+        .result-item .result-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+        }
+        
+        .result-item:hover .result-img {
+            opacity: 1;
+        }
+        
+        /* Mobile touch support */
+        .result-item:active .result-img {
+            opacity: 1;
+        }
+        
+        /* Long press support for mobile */
+        @media (hover: none) and (pointer: coarse) {
+            .result-item {
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                user-select: none;
+            }
+        }
+        
+        /* Mobile active state */
+        .result-item.mobile-active .result-img {
+            opacity: 1;
+        }
+        
+        .show-more-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .show-more-btn {
+            background-color: #1d1d1f;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 24px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .show-more-btn:hover {
+            background-color: #333;
+            transform: translateY(-1px);
+        }
+        
+        .show-more-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .mode-toggle-btn {
+            background-color: #f0f0f0;
+            color: #1d1d1f;
+            border: 1px solid #d0d0d0;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .mode-toggle-btn:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-1px);
+        }
+        
+        .nav-mode {
+            display: block;
+        }
+        
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 16px;
+        }
+        
+        .image-pair {
+            display: flex;
+            gap: 16px;
+            max-width: 800px;
+        }
+        
+        .image-pair img {
+            width: 50%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .image-pair img:hover {
+            transform: scale(1.02);
+        }
+        
+        .nav-btn {
+            background-color: #1d1d1f;
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            font-weight: 300;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .nav-btn:hover {
+            background-color: #333;
+            transform: scale(1.1);
+        }
+        
+        .nav-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .image-counter {
+            text-align: center;
+            font-size: 1rem;
+            color: #86868b;
+            font-weight: 300;
+        }
+        
+        .hover-mode {
+            display: none;
+        }
+        
+        .hover-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+        
+        .hover-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .hover-item:hover {
+            transform: scale(1.02);
+        }
+        
+        .hover-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: opacity 0.3s ease;
+        }
+        
+        .hover-item .result-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+        }
+        
+        .hover-item:hover .result-img {
+            opacity: 1;
+        }
+        
+        .teaser-placeholder {
+            width: 100%;
+            height: 500px;
+            background-color: #fafafa;
+            border: 1px solid #f0f0f0;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #86868b;
+            font-size: 1.1rem;
+            font-weight: 300;
+            margin: 40px 0;
+        }
+        
+        .results-placeholder {
+            width: 100%;
+            height: 400px;
+            background-color: #fafafa;
+            border: 1px solid #f0f0f0;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #86868b;
+            font-size: 1.1rem;
+            font-weight: 300;
+            margin: 40px 0;
+        }
+        
+        .abstract {
+            text-align: justify;
+            font-size: 1.25rem;
+            line-height: 1.8;
+            color: #424245;
+            font-weight: 300;
+            max-width: 950px;
+            margin: 0 auto;
+            letter-spacing: 0.015em;
+        }
+        
+        .bibtex {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 20px;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Source Code Pro', 'Menlo', 'Consolas', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin-top: 20px;
+            white-space: pre;
+        }
+        
+        .bibtex-placeholder {
+            color: #86868b;
+            font-style: normal;
+            text-align: center;
+            padding: 80px 40px;
+            border: 1px solid #f0f0f0;
+            border-radius: 16px;
+            background-color: #fafafa;
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 80px 0 60px 0;
+            color: #86868b;
+            font-size: 0.9rem;
+            font-weight: 300;
+            border-top: 1px solid #f0f0f0;
+            margin-top: 120px;
+        }
+        
+        @media (max-width: 768px) {
+            .title {
+                font-size: 5rem;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .section {
+                margin: 60px 0;
+            }
+            
+            .section h2 {
+                font-size: 2.2rem;
+                margin-bottom: 40px;
+            }
+            
+            .abstract {
+                font-size: 1.15rem;
+                line-height: 1.75;
+            }
+            
+            header {
+                padding: 100px 0 80px 0;
+            }
+            
+            .teaser-container {
+                overflow-x: auto;
+                padding: 0 20px;
+                margin: 20px auto;
+            }
+            
+            .teaser-gif {
+                width: 100%;
+                max-width: 100%;
+                height: auto;
+                max-height: none;
+            }
+            
+            .teaser-placeholder,
+            .results-placeholder {
+                height: 300px;
+                margin: 32px 0;
+            }
+            
+            .nav-container {
+                gap: 16px;
+            }
+            
+            .image-pair {
+                flex-direction: column;
+                max-width: 400px;
+            }
+            
+            .image-pair img {
+                width: 100%;
+            }
+            
+            .nav-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+            
+            .single-results-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .multi-results-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .results-subsection h3 {
+                font-size: 1.6rem;
+            }
+            
+            /* Switch instructions for mobile */
+            .desktop-instruction {
+                display: none;
+            }
+            
+            .mobile-instruction {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="title">
+                <span class="letter-s">S</span><span class="letter-p">P</span><span class="letter-e">E</span><span class="letter-c">C</span><span class="letter-t">T</span><span class="letter-r">R</span><span class="letter-u">U</span><span class="letter-m">M</span>
+            </h1>
+            <h2 style="font-size: 2.2rem; font-weight: 500; margin-bottom: 48px; color: #000000; line-height: 1.35; letter-spacing: -0.01em;">
+                Learning 3D Texture-Aware Representations for<br>Parsing Diverse Human Clothing and Body Parts
+            </h2>
+            
+            <div class="authors">
+                <a href="https://chhatrekiran.github.io/" class="author-link" target="_blank">Kiran Chhatre</a><span class="superscript">1,2</span>&nbsp;&nbsp;&nbsp;
+                <a href="https://www.kth.se/profile/chpeters" class="author-link" target="_blank">Christopher Peters</a><span class="superscript">1</span>&nbsp;&nbsp;&nbsp;
+                <a href="https://karanams.github.io/" class="author-link" target="_blank">Srikrishna Karanam</a><span class="superscript">2</span>
+            </div>
+            
+            <div class="affiliations">
+                <span class="superscript">1</span><a href="https://www.kth.se/en" class="affiliation-link" target="_blank">KTH Royal Institute of Technology</a> &nbsp;&nbsp;&nbsp;&nbsp;
+                <span class="superscript">2</span><a href="https://research.adobe.com/" class="affiliation-link" target="_blank">Adobe Research</a>
+            </div>
+            
+            <a href="https://arxiv.org/abs/2508.06032" class="arxiv-btn" target="_blank">
+                <img src="https://arxiv.org/favicon.ico" alt="arXiv" class="arxiv-logo">
+                arXiv Paper
+            </a>
+        </div>
+    </header>
+
+    <!-- Teaser Figure Section - Full Width -->
+    <div class="section">
+        <div class="teaser-container">
+            <img src="assets/teaser.gif" alt="SPECTRUM Teaser - Original and Segmentation Results" class="teaser-gif">
+        </div>
+        <div class="container">
+            <p class="abstract" style="text-align: center; margin-top: 32px; font-size: 1.1rem; line-height: 1.6;">
+                <strong>Human-alphabet parsing in the wild.</strong> Internet-video frames show people forming the letters of our model name, Spectrum, while the model segments diverse clothing and body parts, handling unseen items such as <span style="color: #007aff; font-style: italic;">sarees</span>, across complex poses and styles.</em>
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Abstract Section -->
+        <div class="section">
+            <h2>Abstract</h2>
+            <p class="abstract">
+                Existing methods for human parsing into body parts and clothing often use fixed mask categories with broad labels that obscure fine-grained clothing types. Recent open-vocabulary segmentation approaches leverage pretrained text-to-image (T2I) diffusion model features for strong zero-shot transfer, but typically group entire humans into a single person category, failing to distinguish diverse clothing or detailed body parts. To address this, we propose <strong>Spectrum</strong>, a unified network for part-level pixel parsing (body parts and clothing) and instance-level grouping. While diffusion-based open-vocabulary models generalize well across tasks, their internal representations are not specialized for detailed human parsing. We observe that, unlike diffusion models with broad representations, image-driven 3D texture generators maintain faithful correspondence to input images, enabling stronger representations for parsing diverse clothing and body parts. Spectrum introduces a novel repurposing of an Image-to-Texture (I2Tx) diffusion model—obtained by fine-tuning a T2I model on 3D human texture maps—for improved alignment with body parts and clothing. From an input image, we extract human-part internal features via the I2Tx diffusion model and generate semantically valid masks aligned to diverse clothing categories through prompt-guided grounding. Once trained, Spectrum produces semantic segmentation maps for every visible body part and clothing category, ignoring standalone garments or irrelevant objects, for any number of humans in the scene. We conduct extensive cross-dataset experiments—separately assessing body parts, clothing parts, unseen clothing categories, and full-body masks—and demonstrate that Spectrum consistently outperforms baseline methods in prompt-based segmentation.
+            </p>
+        </div>
+
+        <!-- Method Section -->
+        <div class="section">
+            <h2>Method</h2>
+            <div class="method-container">
+                <img src="assets/method.gif" alt="SPECTRUM Method Architecture" class="method-gif">
+            </div>
+            <p class="abstract" style="margin-top: 40px;">
+                Base Stable Diffusion weights are merged with 3D-texture LoRA matrices, and a context embedding <strong>C</strong> from IM2CONTEXT and CLIP-VISION drives a single forward pass in the I2Tx model. Concatenating encoder, denoiser, and decoder representations yields the texture-aligned feature <em>f</em> for clothing and body-part parsing. Frozen I2Tx features from image <em>x</em> feed the pixel decoder 𝒫 and transformer, producing <em>N</em> class-agnostic masks <em>m</em> optimized with ℒ<sub>BCE</sub> and ℒ<sub>DICE</sub>. Key prompt phrases, embedded by frozen 𝒯, are contrastively aligned to <em>m</em> via ℒ<sub>G</sub>.
+            </p>
+        </div>
+
+        <!-- Results Section -->
+        <div class="section">
+            <h2>Results</h2>
+            
+            <!-- Single Human Results -->
+            <div class="results-subsection">
+                <h3>Single Human Portraits</h3>
+                <p class="hover-instruction desktop-instruction">Hover over images to see the results ↖</p>
+                <p class="hover-instruction mobile-instruction">Tap and hold images to see the results ↖</p>
+                <div class="single-results-grid">
+                    <!-- Single results -->
+                </div>
+                <div class="show-more-container">
+                    <button id="single-show-more" class="show-more-btn">Show More</button>
+                </div>
+            </div>
+            
+            <!-- Multi Human Results -->
+            <div class="results-subsection">
+                <h3>Multiple Human Complex Scenes</h3>
+                <p class="hover-instruction desktop-instruction">Hover over images to see the results ↖</p>
+                <p class="hover-instruction mobile-instruction">Tap and hold images to see the results ↖</p>
+                <div class="multi-results-grid">
+                    <!-- Multi results -->
+                </div>
+                <div class="show-more-container">
+                    <button id="multi-show-more" class="show-more-btn">Show More</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Citation Section -->
+        <div class="section">
+            <h2>Citation</h2>
+            <div class="bibtex">
+@misc{chhatre2025learning3dtextureawarerepresentations,
+      title={Learning {3D} Texture-Aware Representations for Parsing Diverse Human Clothing and Body Parts}, 
+      author={Kiran Chhatre and Christopher Peters and Srikrishna Karanam},
+      year={2025},
+      eprint={2508.06032},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2508.06032}, 
+}
+            </div>
+        </div>
+
+        <!-- Acknowledgments Section -->
+        <div class="section">
+            <h2>Acknowledgments and Disclosure</h2>
+            <p class="abstract">
+                We thank <a href="https://is.mpg.de/ps/person/black" class="author-link" target="_blank">Michael J. Black</a> for valuable feedback. We also thank <a href="https://kulits.github.io/" class="author-link" target="_blank">Peter Kulits</a>, <a href="https://zzt76.github.io/" class="author-link" target="_blank">Zitian Zhang</a>, <a href="https://zheninghuang.github.io/" class="author-link" target="_blank">Zhening Huang</a>, and <a href="https://samsartor.com/" class="author-link" target="_blank">Samuel Sartor</a> for proofreading and insightful discussions. This work was conducted during an internship at Adobe Research.
+            </p>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 SPECTRUM Project. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // JavaScript for paginated image galleries
+        
+        // Single Human Gallery
+        const singleMaxIndex = 16; // Images 1-16 (excluding 17)
+        let singleDisplayed = 0;
+        let singleTotalShown = 0; // Track actual images shown
+        const singleTotalResults = 16; // Total images to show (1-16, excluding 17)
+        const singleInitialBatchSize = 4; 
+        const singleMoreBatchSize = 2;
+        
+        // Multi Human Gallery
+        const multiMaxIndex = 19; // Images 1-14, 16-19 (excluding 9, 11, 15)
+        let multiDisplayed = 0;
+        let multiTotalShown = 0; 
+        const multiTotalResults = 16; // Total images to show (1-8, 10, 12-14, 16-19 = 16 images)
+        const multiInitialBatchSize = 4; 
+        const multiMoreBatchSize = 2; 
+        
+        // Initialize galleries
+        document.addEventListener('DOMContentLoaded', function() {
+            loadInitialResults();
+            setupEventListeners();
+        });
+        
+        function loadInitialResults() {
+            loadMoreSingleResults();
+            loadMoreMultiResults();
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('single-show-more').addEventListener('click', loadMoreSingleResults);
+            document.getElementById('multi-show-more').addEventListener('click', loadMoreMultiResults);
+        }
+        
+        function loadMoreSingleResults() {
+            const grid = document.querySelector('.single-results-grid');
+            const showMoreBtn = document.getElementById('single-show-more');
+            
+            
+            const batchSize = singleTotalShown === 0 ? singleInitialBatchSize : singleMoreBatchSize;
+            let added = 0;
+            
+            for (let i = singleDisplayed + 1; i <= singleMaxIndex && added < batchSize && singleTotalShown < singleTotalResults; i++) {
+                // No need to exclude any images since we set singleMaxIndex to 16
+                
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `
+                    <img src="assets/single/single_${i}_orig.png" alt="Single Result ${i} Original" class="orig-img">
+                    <img src="assets/single/single_${i}_result.png" alt="Single Result ${i} Segmentation" class="result-img">
+                `;
+                grid.appendChild(resultItem);
+                added++;
+                singleTotalShown++;
+                singleDisplayed = i;
+            }
+            
+           
+            if (singleTotalShown >= singleTotalResults) {
+                showMoreBtn.style.display = 'none';
+            }
+        }
+        
+        function loadMoreMultiResults() {
+            const grid = document.querySelector('.multi-results-grid');
+            const showMoreBtn = document.getElementById('multi-show-more');
+            
+            
+            const batchSize = multiTotalShown === 0 ? multiInitialBatchSize : multiMoreBatchSize;
+            let added = 0;
+            
+            for (let i = multiDisplayed + 1; i <= multiMaxIndex && added < batchSize && multiTotalShown < multiTotalResults; i++) {
+                
+                if (i === 9 || i === 11 || i === 15) {
+                    multiDisplayed = i; 
+                    continue;
+                }
+                
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `
+                    <img src="assets/multi/multi_${i}_orig.png" alt="Multi Result ${i} Original" class="orig-img">
+                    <img src="assets/multi/multi_${i}_result.png" alt="Multi Result ${i} Segmentation" class="result-img">
+                `;
+                grid.appendChild(resultItem);
+                added++;
+                multiTotalShown++;
+                multiDisplayed = i;
+            }
+            
+           
+            if (multiTotalShown >= multiTotalResults) {
+                showMoreBtn.style.display = 'none';
+            }
+        }
+        
+        // Add mobile touch support for result items
+        function addMobileTouchSupport() {
+            const resultItems = document.querySelectorAll('.result-item');
+            
+            resultItems.forEach(item => {
+                // Skip if already has touch listeners
+                if (item.hasAttribute('data-touch-enabled')) return;
+                item.setAttribute('data-touch-enabled', 'true');
+                
+                let touchTimer;
+                let isLongPress = false;
+                
+                // Touch start - begin long press timer
+                item.addEventListener('touchstart', (e) => {
+                    isLongPress = false;
+                    touchTimer = setTimeout(() => {
+                        isLongPress = true;
+                        item.classList.add('mobile-active');
+                        // Add haptic feedback if available
+                        if (navigator.vibrate) {
+                            navigator.vibrate(50);
+                        }
+                    }, 300); // 300ms for long press
+                }, { passive: true });
+                
+                // Touch end - clear timer and reset
+                item.addEventListener('touchend', (e) => {
+                    clearTimeout(touchTimer);
+                    if (isLongPress) {
+                        e.preventDefault();
+                        setTimeout(() => {
+                            item.classList.remove('mobile-active');
+                        }, 1500); // Show result for 1.5 seconds
+                    }
+                }, { passive: false });
+                
+                // Touch move - cancel long press if finger moves
+                item.addEventListener('touchmove', () => {
+                    clearTimeout(touchTimer);
+                    item.classList.remove('mobile-active');
+                }, { passive: true });
+            });
+        }
+        
+        // Override the original functions to include mobile support
+        function loadMoreSingleResults() {
+            const grid = document.querySelector('.single-results-grid');
+            const showMoreBtn = document.getElementById('single-show-more');
+            
+            const batchSize = singleTotalShown === 0 ? singleInitialBatchSize : singleMoreBatchSize;
+            let added = 0;
+            
+            for (let i = singleDisplayed + 1; i <= singleMaxIndex && added < batchSize && singleTotalShown < singleTotalResults; i++) {
+                
+                if (i === 17) {
+                    singleDisplayed = i; 
+                    continue;
+                }
+                
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `
+                    <img src="assets/single/single_${i}_orig.png" alt="Single Result ${i} Original" class="orig-img">
+                    <img src="assets/single/single_${i}_result.png" alt="Single Result ${i} Segmentation" class="result-img">
+                `;
+                grid.appendChild(resultItem);
+                added++;
+                singleTotalShown++;
+                singleDisplayed = i;
+            }
+            
+            // Add mobile touch support to new items
+            addMobileTouchSupport();
+            
+            if (singleTotalShown >= singleTotalResults) {
+                showMoreBtn.style.display = 'none';
+            }
+        }
+        
+        function loadMoreMultiResults() {
+            const grid = document.querySelector('.multi-results-grid');
+            const showMoreBtn = document.getElementById('multi-show-more');
+            
+            const batchSize = multiTotalShown === 0 ? multiInitialBatchSize : multiMoreBatchSize;
+            let added = 0;
+            
+            for (let i = multiDisplayed + 1; i <= multiMaxIndex && added < batchSize && multiTotalShown < multiTotalResults; i++) {
+                if (i === 9 || i === 11 || i === 15) {
+                    multiDisplayed = i; 
+                    continue;
+                }
+                
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `
+                    <img src="assets/multi/multi_${i}_orig.png" alt="Multi Result ${i} Original" class="orig-img">
+                    <img src="assets/multi/multi_${i}_result.png" alt="Multi Result ${i} Segmentation" class="result-img">
+                `;
+                grid.appendChild(resultItem);
+                added++;
+                multiTotalShown++;
+                multiDisplayed = i;
+            }
+            
+            // Add mobile touch support to new items
+            addMobileTouchSupport();
+            
+            if (multiTotalShown >= multiTotalResults) {
+                showMoreBtn.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
